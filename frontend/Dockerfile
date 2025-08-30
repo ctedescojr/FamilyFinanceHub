@@ -1,62 +1,80 @@
-# Frontend Dockerfile - React + Vite + Tailwind CSS 4.1
+#
+# Frontend Dockerfile - React + Vite + Tailwind CSS
+# This is a multi-stage Dockerfile for both development and production.
+#
 
-# Estágio de desenvolvimento
-FROM node:24-alpine as development
+# --- Development Stage ---
+# This stage is for running the Vite dev server with hot-reloading.
+FROM node:24-alpine AS development
 
+# Set the working directory
 WORKDIR /app
 
-# Copiar arquivos de dependências
+# Copy dependency definition files
 COPY package*.json ./
 
-# Instalar dependências
+# Install dependencies using 'npm ci' for fast, reproducible installs
 RUN npm ci
 
-# Copiar código fonte
+# Copy the rest of the application source code
 COPY . .
 
-# Expor porta de desenvolvimento
+# Expose the Vite development port
 EXPOSE 5173
 
-# Comando de desenvolvimento com hot reload
+# Run the development server, exposing it to the host machine
+# The '--' ensures the following arguments are passed to the 'dev' script
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
-# Estágio de build para produção
-FROM node:18-alpine as build
 
+# --- Build Stage ---
+# This stage builds the application for production.
+FROM node:24-alpine AS build
+
+# Set the working directory
 WORKDIR /app
 
-# Copiar arquivos de dependências
+# Copy dependency definition files
 COPY package*.json ./
 
-# Instalar dependências incluindo devDependencies para build
+# Install all dependencies (including devDependencies needed for the build)
 RUN npm ci
 
-# Copiar código fonte
+# Copy the rest of the application source code
 COPY . .
 
-# Build da aplicação
+# Build the static files for production
 RUN npm run build
 
-# Estágio de produção com nginx
-FROM nginx:alpine as production
 
-# Copiar configuração personalizada do nginx
+# --- Production Stage ---
+# This stage serves the built static files using Nginx.
+FROM nginx:1.27-alpine AS production
+
+# Install curl for the healthcheck and gettext for envsubst (runtime env variables)
+RUN apk add --no-cache curl gettext
+
+# Copy the custom Nginx configuration
+# This config is optimized for Single Page Applications (SPAs)
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
-# Copiar arquivos buildados
+# Remove the default Nginx welcome page
+RUN rm /usr/share/nginx/html/*
+
+# Copy the built static files from the 'build' stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copiar script de inicialização para variáveis de ambiente em runtime
+# Copy the entrypoint script that injects environment variables at runtime
 COPY scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Expor porta
+# Expose the production port
 EXPOSE 80
 
-# Health check
+# Healthcheck to verify that Nginx is running and serving content
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost/ || exit 1
+  CMD curl --fail http://localhost/ || exit 1
 
-# Entrypoint para injetar variáveis de ambiente em runtime
+# The entrypoint script will run first, then it will execute the CMD
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]

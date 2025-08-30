@@ -59,3 +59,4 @@ cp .env.example frontend/.env
 
 ### 3. Inicie os serviços
 ```bash
+docker-compose run --rm --entrypoint /bin/sh backend -c "django-admin startproject config ."
