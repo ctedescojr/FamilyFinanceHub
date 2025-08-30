@@ -1,16 +1,16 @@
 #!/bin/sh
 
-# Aborta o script se qualquer comando falhar
+# Abort the script if any command fails
 set -e
 
-echo "Aguardando o banco de dados..."
+echo "Waiting for the database..."
 python manage.py wait_for_db
 
-echo "Aplicando migrações do banco de dados..."
+echo "Applying database migrations..."
 python manage.py migrate
 
-echo "Coletando arquivos estáticos..."
+echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
-# Executa o comando principal do container (o que vem depois de 'docker-compose run ...')
+# Executes the main command of the container
 exec "$@"

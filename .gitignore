@@ -10,6 +10,15 @@ staticfiles/
 .env
 
 # =========================
+# Environments
+# =========================
+.env
+.venv
+env/
+venv/
+ENV/
+
+# =========================
 # Flutter
 # =========================
 build/
@@ -32,6 +41,7 @@ ios/Flutter/Flutter.podspec
 node_modules/
 dist/
 *.tsbuildinfo
+.npm
 
 # =========================
 # Docker
@@ -45,3 +55,9 @@ tmp/
 # =========================
 .DS_Store
 Thumbs.db
+
+# =========================
+# IDE
+# =========================
+.idea/
+.vscode/

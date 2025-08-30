@@ -1,12 +1,12 @@
-# --- Estágio 1: Builder ---
-# Constrói o ambiente com todas as ferramentas necessárias
+# --- Builder ---
+# Build the environment with all the necessary tools
 FROM python:3.13-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Instala todas as dependências de sistema (build e runtime)
+# Installs all system dependencies (build and runtime)
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -17,26 +17,26 @@ RUN apt-get update && apt-get install -y \
     git \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Cria um ambiente virtual isolado
+# Create an isolated virtual environment
 WORKDIR /app
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Instala dependências Python (usando a versão de produção)
+# Install Python dependencies (using the production version)
 COPY requirements/ requirements/
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements/production.txt # ATENÇÃO: Usar production.txt
 
-# --- Estágio 2: Runner ---
-# A imagem final, enxuta e pronta para produção
+# --- Runner ---
+# The final image, streamlined and ready for production
 FROM python:3.13-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Instala APENAS as dependências de runtime (não as de build)
+# Install ONLY the runtime dependencies (not the build ones)
 RUN apt-get update && apt-get install -y \
     libpq5 \
     tesseract-ocr tesseract-ocr-por \
@@ -44,30 +44,34 @@ RUN apt-get update && apt-get install -y \
     curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Cria usuário e diretório de trabalho
+# Create user and working directory
 WORKDIR /app
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Copia o ambiente virtual com as dependências já instaladas do estágio builder
+# Copy the virtual environment with the dependencies already installed from the builder stage.
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copia o código da aplicação
+# Copy the application code
 COPY . .
 
-# Cria diretórios e define permissões
+# Creates directories and sets permissions
 RUN mkdir -p media staticfiles logs && \
     chown -R appuser:appuser /app
 
-# Configura o usuário para rodar a aplicação
+# Sets up the user to run the application
 USER appuser
 
-# Expor porta
+# Copies the entrypoing
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+# Export door
 EXPOSE 8000
 
-# Healthcheck (do seu arquivo, é perfeito!)
+# Healthcheck
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/api/health/ || exit 1
 
-# Comando padrão (sugestão: usar Gunicorn para produção)
+# Default command
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
