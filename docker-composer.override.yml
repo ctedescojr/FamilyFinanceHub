@@ -67,7 +67,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      target: development
+      target: production
       dockerfile: Dockerfile
     container_name: ffh_frontend
     volumes:
@@ -78,7 +78,7 @@ services:
       - VITE_APP_NAME=FamilyFinanceHub
       - NODE_ENV=development
     ports:
-      - "5173:5173"
+      - "80:80"
     depends_on:
       - backend
     restart: unless-stopped
