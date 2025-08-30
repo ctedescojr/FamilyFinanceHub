@@ -54,17 +54,15 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy the application code
 COPY . .
+COPY entrypoint.sh .
 
 # Creates directories and sets permissions
-RUN mkdir -p media staticfiles logs && \
+RUN chmod +x /app/entrypoint.sh && \
+    mkdir -p /app/media /app/staticfiles /app/logs && \
     chown -R appuser:appuser /app
 
 # Sets up the user to run the application
 USER appuser
-
-# Copies the entrypoing
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
 
 # Export door
 EXPOSE 8000
