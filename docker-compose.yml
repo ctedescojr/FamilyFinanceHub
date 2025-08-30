@@ -1,0 +1,161 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database
+  db:
+    image: postgres:17-alpine
+    container_name: ffh_postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - .env
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ffh_user -d familyfinancehub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for cahce and sessions
+  redis:
+    image: redis:7-alpine
+    container_name: ffh_redis
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Django
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ffh_backend
+    volumes:
+      - ./backend:/app
+      - media_files:/app/media
+      - static_files:/app/staticfiles
+    env_file:
+      - .env
+    environment:
+      - DEBUG=True
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - DATABASE_URL=postgresql://ffh_user:ffh_password123@db:5432/familyfinancehub
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=your-super-secret-key-change-in-production
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend
+      - CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    entrypoint: ["/app/entrypoint.sh"] # Define o entrypoint
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ffh_frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api
+      - VITE_APP_NAME=FamilyFinanceHub
+      - NODE_ENV=development
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    command: npm run dev
+
+  # Nginx (Reverse prox for production)
+  nginx:
+    image: nginx:alpine
+    container_name: ffh_nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - static_files:/var/www/static
+      - media_files:/var/www/media
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
+    profiles:
+      - production
+
+  # Celery Worker (Async tasks)
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ffh_celery_worker
+    volumes:
+      - ./backend:/app
+      - media_files:/app/media
+    environment:
+      - DEBUG=True
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - DATABASE_URL=postgresql://ffh_user:ffh_password123@db:5432/familyfinancehub
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=your-super-secret-key-change-in-production
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    command: celery -A config worker --loglevel=info
+    profiles:
+      - celery
+
+  # Celery Beat (tasks schedules)
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ffh_celery_beat
+    volumes:
+      - ./backend:/app
+    environment:
+      - DEBUG=True
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - DATABASE_URL=postgresql://ffh_user:ffh_password123@db:5432/familyfinancehub
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=your-super-secret-key-change-in-production
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    command: celery -A config beat --loglevel=info
+    profiles:
+      - celery
+
+volumes:
+  postgres_data:
+  redis_data:
+  media_files:
+  static_files:
+
+networks:
+  default:
+    name: ffh_network

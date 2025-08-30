@@ -1,0 +1,47 @@
+# =========================
+# Python / Django
+# =========================
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+media/
+staticfiles/
+.env
+
+# =========================
+# Flutter
+# =========================
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+.idea/
+android/.gradle/
+android/app/key.properties
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# =========================
+# Node / Tailwind
+# =========================
+node_modules/
+dist/
+*.tsbuildinfo
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+*.pid
+tmp/
+
+# =========================
+# Sistema Operacional
+# =========================
+.DS_Store
+Thumbs.db
