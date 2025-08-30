@@ -1,0 +1,11 @@
+# ==============================================================================
+# Core Dependencies - Required for the project to run in any environment
+# ==============================================================================
+django==5.2.5
+djangorestframework
+psycopg2-binary
+python-dotenv
+djangorestframework-simplejwt
+django-cors-headers
+celery
+redis
