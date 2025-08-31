@@ -10,6 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
+    python3-dev \
     postgresql-client \
     curl \
     tesseract-ocr tesseract-ocr-por libtesseract-dev libleptonica-dev \
@@ -23,8 +24,7 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Install Python dependencies (using the production version)
-COPY requirements/ requirements/
-COPY requirements.txt .
+COPY requirements/ ./requirements/
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements/production.txt # ATENÇÃO: Usar production.txt
 
@@ -54,7 +54,6 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy the application code
 COPY . .
-COPY entrypoint.sh .
 
 # Creates directories and sets permissions
 RUN chmod +x /app/entrypoint.sh && \
@@ -70,6 +69,9 @@ EXPOSE 8000
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/api/health/ || exit 1
+
+# Entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Default command
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
