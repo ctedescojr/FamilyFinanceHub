@@ -2,13 +2,11 @@ services:
   # PostgreSQL database
   db:
     image: postgres:17-alpine
-    container_name: ffh_postgres_dev
+    container_name: ffh_postgres_prod
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
-    ports:
-      - "5432:5432"
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
@@ -19,11 +17,9 @@ services:
   # Redis for cahce and sessions
   redis:
     image: redis:7-alpine
-    container_name: ffh_redis_dev
+    container_name: ffh_redis_prod
     volumes:
       - redis_data:/data
-    ports:
-      - "6379:6379"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -36,101 +32,75 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: ffh_backend_dev
+    container_name: ffh_backend_prod
     volumes:
-      - ./backend:/app
       - media_files:/app/media
       - static_files:/app/staticfiles
     env_file:
       - .env
     environment:
-      - DEBUG=True
-      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - DEBUG=False
+      - DJANGO_SETTINGS_MODULE=config.settings.production
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - REDIS_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
-      - ALLOWED_HOSTS=localhost,127.0.0.1,backend
-      - CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
-    ports:
-      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
     restart: unless-stopped
-    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
 
-  # Frontend React
-  frontend:
+  # Nginx (Reverse prox for production)
+  nnginx:
     build:
       context: ./frontend
-      target: development
+      target: production
       dockerfile: Dockerfile
-    container_name: ffh_frontend_dev
+    container_name: ffh_nginx_prod
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - ./frontend/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - static_files:/var/www/static
+      - media_files:/var/www/media
+    env_file:
+      - .env
     environment:
-      - VITE_API_BASE_URL=http://localhost:8000/api
-      - VITE_APP_NAME=FamilyFinanceHub
-      - NODE_ENV=development
+      - VITE_API_BASE_URL=/api
     ports:
-      - "5173:5173"
+      - "80:80"
     depends_on:
       - backend
     restart: unless-stopped
-    command: npm run dev
 
   # Celery Worker (Async tasks)
   celery-worker:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    container_name: ffh_celery_worker_dev
-    volumes:
-      - ./backend:/app
-      - media_files:/app/media
-    env_file:
-      - .env
+    container_name: ffh_celery_worker_prod
+    command: celery -A config worker --loglevel=info
+    env_file: .env
     environment:
-      - DEBUG=True
-      - DJANGO_SETTINGS_MODULE=config.settings.development
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - REDIS_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - redis
+      - db
     restart: unless-stopped
-    command: celery -A config worker --loglevel=info
-    profiles:
-      - celery
 
   # Celery Beat (tasks schedules)
   celery-beat:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    container_name: ffh_celery_beat
-    volumes:
-      - ./backend:/app
-    env_file:
-      - .env
+    container_name: ffh_celery_beat_prod
+    command: celery -A config beat --loglevel=info
+    env_file: .env
     environment:
-      - DEBUG=True
-      - DJANGO_SETTINGS_MODULE=config.settings.development
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - REDIS_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - redis
+      - db
     restart: unless-stopped
-    command: celery -A config beat --loglevel=info
-    profiles:
-      - celery
 
 volumes:
   postgres_data:
@@ -140,4 +110,4 @@ volumes:
 
 networks:
   default:
-    name: ffh_network_dev
+    name: ffh_network_prod
