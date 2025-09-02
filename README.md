@@ -109,9 +109,9 @@ The frontend setup requires a few steps to initialize the Vite + React project a
 
 #### 5. Fixing permissions from the files created at frontend
 
-    ```bash
-    sudo chown -R $(id -u):$(id -g) frontend
-    ```
+```bash
+sudo chown -R $(id -u):$(id -g) frontend
+```
 
 #### 6. Configure TailwindCSS
 
@@ -290,9 +290,9 @@ A configuração do frontend requer alguns passos para inicializar o projeto Vit
 
 #### 5. Ajustando as permissões dos arquivos criados em frontend
 
-    ```bash
-    sudo chown -R $(id -u):$(id -g) frontend
-    ```
+```bash
+sudo chown -R $(id -u):$(id -g) frontend
+```
 
 #### 6. Configurar o TailwindCSS
 
