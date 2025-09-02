@@ -52,7 +52,7 @@ services:
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
 
   # Nginx (Reverse prox for production)
-  nnginx:
+  nginx:
     build:
       context: ./frontend
       target: production

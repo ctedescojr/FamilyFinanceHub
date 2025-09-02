@@ -67,6 +67,7 @@ services:
       target: development
       dockerfile: Dockerfile
     container_name: ffh_frontend_dev
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./frontend:/app
       - /app/node_modules
