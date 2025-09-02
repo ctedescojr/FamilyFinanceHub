@@ -36,6 +36,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    user: "${UID:-1000}:${GID:-1000}"
     container_name: ffh_backend_dev
     volumes:
       - ./backend:/app
@@ -87,6 +88,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    user: "${UID:-1000}:${GID:-1000}"
     container_name: ffh_celery_worker_dev
     volumes:
       - ./backend:/app
@@ -113,6 +115,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    user: "${UID:-1000}:${GID:-1000}"
     container_name: ffh_celery_beat
     volumes:
       - ./backend:/app
