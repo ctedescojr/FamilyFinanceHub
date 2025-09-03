@@ -19,6 +19,12 @@ RUN npm ci
 # Copy the rest of the application source code
 COPY . .
 
+# Change ownership of the app directory
+RUN chown -R node:node /app
+
+# Switch to the non-root user
+USER node
+
 # Expose the Vite development port
 EXPOSE 5173
 
