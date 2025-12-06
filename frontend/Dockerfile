@@ -14,6 +14,10 @@ WORKDIR /app
 # The entrypoint script will handle dependency installation at runtime.
 COPY package*.json ./
 
+# Install dependencies
+# This ensures vite and other packages are available in the image
+RUN npm install
+
 # Install gosu for permission management
 RUN apk add --no-cache gosu
 

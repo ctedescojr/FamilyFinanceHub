@@ -117,6 +117,12 @@ EOF
 fi
 
 # --- Runtime Operations ---
+# Ensure node_modules are installed if they are missing
+if [ ! -d "node_modules" ]; then
+    echo "---> node_modules not found. Installing dependencies..."
+    gosu node npm install
+fi
+
 # Ensure the app directory is owned by the node user before starting
 echo "---> Setting permissions for runtime..."
 chown -R node:node /app
