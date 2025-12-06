@@ -1,7 +1,7 @@
 services:
   # PostgreSQL database
   db:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     container_name: ffh_postgres_dev
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -36,15 +36,17 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    user: "${UID:-1000}:${GID:-1000}"
     container_name: ffh_backend_dev
     volumes:
       - ./backend:/app
       - media_files:/app/media
       - static_files:/app/staticfiles
+      - uv_cache:/root/.cache/uv
     env_file:
       - .env
     environment:
+      - HOST_UID=${UID:-1000}
+      - HOST_GID=${GID:-1000}
       - DEBUG=True
       - DJANGO_SETTINGS_MODULE=config.settings.development
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
@@ -68,11 +70,12 @@ services:
       target: development
       dockerfile: Dockerfile
     container_name: ffh_frontend_dev
-    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./frontend:/app
       - /app/node_modules
     environment:
+      - HOST_UID=${UID:-1000}
+      - HOST_GID=${GID:-1000}
       - VITE_API_BASE_URL=http://localhost:8000/api
       - VITE_APP_NAME=FamilyFinanceHub
       - NODE_ENV=development
@@ -141,6 +144,7 @@ volumes:
   redis_data:
   media_files:
   static_files:
+  uv_cache:
 
 networks:
   default:

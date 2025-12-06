@@ -11,26 +11,28 @@ FROM node:24-alpine AS development
 WORKDIR /app
 
 # Copy dependency definition files
+# The entrypoint script will handle dependency installation at runtime.
 COPY package*.json ./
 
-# Install dependencies using 'npm ci' for fast, reproducible installs
-RUN npm ci
+# Install gosu for permission management
+RUN apk add --no-cache gosu
 
-# Copy the rest of the application source code
+# Copy the rest of the application source code (including the scripts folder)
 COPY . .
 
-# Change ownership of the app directory
-RUN chown -R node:node /app
+# The container will be started as root and the entrypoint will use gosu to step down to the node user.
+# This is necessary to fix potential file permission issues with bind mounts.
 
-# Switch to the non-root user
-USER node
+# Copy the entrypoint script and make it executable
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Expose the Vite development port
 EXPOSE 5173
 
-# Run the development server, exposing it to the host machine
-# The '--' ensures the following arguments are passed to the 'dev' script
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# The entrypoint script will handle project initialization and run the main command
+ENTRYPOINT ["entrypoint.sh"]
+CMD ["npm", "run", "dev"]
 
 
 # --- Build Stage ---
@@ -57,22 +59,18 @@ RUN npm run build
 # This stage serves the built static files using Nginx.
 FROM nginx:1.27-alpine AS production
 
-# Install curl for the healthcheck and gettext for envsubst (runtime env variables)
-RUN apk add --no-cache curl gettext
+# Install curl for the healthcheck
+RUN apk add --no-cache curl
 
-# Copy the custom Nginx configuration
-# This config is optimized for Single Page Applications (SPAs)
-COPY nginx/nginx.conf /etc/nginx/nginx.conf
+# Copy the custom Nginx configuration (assuming you have one at nginx/nginx.conf)
+# This config should be optimized for Single Page Applications (SPAs)
+# COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
 # Remove the default Nginx welcome page
-RUN rm /usr/share/nginx/html/*
+RUN rm -rf /usr/share/nginx/html/*
 
 # Copy the built static files from the 'build' stage
 COPY --from=build /app/dist /usr/share/nginx/html
-
-# Copy the entrypoint script that injects environment variables at runtime
-COPY scripts/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
 # Expose the production port
 EXPOSE 80
@@ -81,6 +79,5 @@ EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl --fail http://localhost/ || exit 1
 
-# The entrypoint script will run first, then it will execute the CMD
-ENTRYPOINT ["/entrypoint.sh"]
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]

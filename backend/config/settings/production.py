@@ -1,7 +1,7 @@
 from .base import *
 
-# Configurações específicas de produção
+# Production configuration
 DEBUG = False
 
-# Substitua pelos domínios do seu site em produção
-ALLOWED_HOSTS = ["seusite.com", "www.seusite.com"]
+# Replace with your production sites domain
+ALLOWED_HOSTS = ["yoursite.com", "www.yoursite.com"]
