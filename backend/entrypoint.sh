@@ -366,6 +366,9 @@ gosu appuser python manage.py wait_for_db
 echo "Applying database migrations..."
 gosu appuser python manage.py migrate
 
+echo "Checking superuser..."
+gosu appuser python manage.py init_superuser
+
 echo "Collecting static files..."
 gosu appuser python manage.py collectstatic --noinput
 
