@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
     python3-dev \
+    # GNU tools for translations
+    gettext \
     # Client for connecting to PostgreSQL
     postgresql-client \
     # Needed to download uv
@@ -54,6 +56,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # Install only the necessary runtime dependencies to keep the final image lean.
 RUN apt-get update && apt-get install -y \
+    # GNU tools for translations (needed at runtime for makemessages)
+    gettext \
     # PostgreSQL client library
     libpq5 \
     # Runtime libraries for Pillow

@@ -354,6 +354,13 @@ fi
 echo "---> Setting permissions..."
 chown -R appuser:appuser /app
 
+# Ensure the locale directory, if it exists, also has correct permissions.
+# This handles cases where `makemessages` is run via `exec` as root.
+if [ -d "/app/locale" ]; then
+    echo "---> Setting permissions for locale directory..."
+    chown -R appuser:appuser /app/locale
+fi
+
 # Check if DJANGO_SETTINGS_MODULE is set
 if [ -z "$DJANGO_SETTINGS_MODULE" ]; then
   echo "Error: DJANGO_SETTINGS_MODULE is not set."
