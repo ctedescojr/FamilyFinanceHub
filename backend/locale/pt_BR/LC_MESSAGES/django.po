@@ -8,15 +8,221 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-15 18:59+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2026-03-16 00:55+0000\n"
+"PO-Revision-Date: 2026-03-16 01:05+0000\n"
+"Last-Translator: Seu Nome <email@example.com>\n"
+"Language-Team: pt_BR <translation@example.com>\n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: apps/finances/apps.py:7
+msgid "Finances"
+msgstr "Finanças"
+
+#: apps/finances/models.py:13 apps/finances/models.py:55
+#: apps/finances/models.py:167 apps/finances/models.py:198
+msgid "user"
+msgstr "usuário"
+
+#: apps/finances/models.py:16 apps/finances/models.py:65
+msgid "balance"
+msgstr "saldo"
+
+#: apps/finances/models.py:41
+msgid "Wallet"
+msgstr "Carteira"
+
+#: apps/finances/models.py:42
+msgid "Wallets"
+msgstr "Carteiras"
+
+#: apps/finances/models.py:46
+msgid "Checking Account"
+msgstr "Conta Corrente"
+
+#: apps/finances/models.py:47
+msgid "Savings Account"
+msgstr "Conta Poupança"
+
+#: apps/finances/models.py:48
+msgid "Investment"
+msgstr "Investimento"
+
+#: apps/finances/models.py:49
+msgid "Other"
+msgstr "Outro"
+
+#: apps/finances/models.py:57
+msgid "bank name"
+msgstr "nome do banco"
+
+#: apps/finances/models.py:59
+msgid "account type"
+msgstr "tipo de conta"
+
+#: apps/finances/models.py:90
+msgid "Bank Account"
+msgstr "Conta Bancária"
+
+#: apps/finances/models.py:91
+msgid "Bank Accounts"
+msgstr "Contas Bancárias"
+
+#: apps/finances/models.py:97
+msgid "Debit"
+msgstr "Débito"
+
+#: apps/finances/models.py:98
+msgid "Credit"
+msgstr "Crédito"
+
+#: apps/finances/models.py:99
+msgid "Debit/Credit"
+msgstr "Débito/Crédito"
+
+#: apps/finances/models.py:105
+msgid "bank account"
+msgstr "conta bancária"
+
+#: apps/finances/models.py:108
+msgid "card type"
+msgstr "tipo de cartão"
+
+#: apps/finances/models.py:113
+msgid "card name"
+msgstr "nome do cartão"
+
+#: apps/finances/models.py:113
+msgid "e.g., Visa Platinum, Nubank Gold"
+msgstr "ex: Visa Platinum, Nubank Gold"
+
+#: apps/finances/models.py:115
+msgid "limit"
+msgstr "limite"
+
+#: apps/finances/models.py:118
+msgid "statement closing day"
+msgstr "dia de fechamento da fatura"
+
+#: apps/finances/models.py:124
+msgid "payment due day"
+msgstr "dia de vencimento da fatura"
+
+#: apps/finances/models.py:142
+msgid "Debit cards cannot have a limit, statement closing day, or payment due day."
+msgstr "Cartões de débito não podem ter limite, dia de fechamento ou dia de vencimento."
+
+#: apps/finances/models.py:147
+msgid "Credit cards must have a limit."
+msgstr "Cartões de crédito devem ter um limite."
+
+#: apps/finances/models.py:153
+msgid "Card"
+msgstr "Cartão"
+
+#: apps/finances/models.py:154
+msgid "Cards"
+msgstr "Cartões"
+
+#: apps/finances/models.py:160 apps/finances/models.py:245
+msgid "Income"
+msgstr "Entrada"
+
+#: apps/finances/models.py:161 apps/finances/models.py:321
+msgid "Expense"
+msgstr "Despesa"
+
+#: apps/finances/models.py:169
+msgid "name"
+msgstr "nome"
+
+#: apps/finances/models.py:171
+msgid "transaction type"
+msgstr "tipo de transação"
+
+#: apps/finances/models.py:182
+msgid "Category"
+msgstr "Categoria"
+
+#: apps/finances/models.py:183
+msgid "Categories"
+msgstr "Categorias"
+
+#: apps/finances/models.py:200
+msgid "description"
+msgstr "descrição"
+
+#: apps/finances/models.py:201
+msgid "amount"
+msgstr "valor"
+
+#: apps/finances/models.py:202
+msgid "date"
+msgstr "data"
+
+#: apps/finances/models.py:208
+msgid "category"
+msgstr "categoria"
+
+#: apps/finances/models.py:246
+msgid "Incomes"
+msgstr "Entradas"
+
+#: apps/finances/models.py:251
+msgid "Cash"
+msgstr "Dinheiro"
+
+#: apps/finances/models.py:252
+msgid "PIX"
+msgstr "PIX"
+
+#: apps/finances/models.py:253
+msgid "Debit Card"
+msgstr "Cartão de Débito"
+
+#: apps/finances/models.py:254
+msgid "Credit Card"
+msgstr "Cartão de Crédito"
+
+#: apps/finances/models.py:256
+msgid "place"
+msgstr "local"
+
+#: apps/finances/models.py:258
+msgid "payment method"
+msgstr "método de pagamento"
+
+#: apps/finances/models.py:269
+msgid "bank account (for PIX)"
+msgstr "conta bancária (para PIX)"
+
+#: apps/finances/models.py:277
+msgid "card (for Debit/Credit)"
+msgstr "cartão (para Débito/Crédito)"
+
+#: apps/finances/models.py:305
+msgid "User does not have a wallet to withdraw from."
+msgstr "Usuário não possui uma carteira para sacar."
+
+#: apps/finances/models.py:312
+msgid "A card or bank account cannot be associated with a cash payment."
+msgstr "Um cartão ou conta bancária não pode ser associado a um pagamento em dinheiro."
+
+#: apps/finances/models.py:315
+msgid "A bank account is required for PIX payments, and a card should not be selected."
+msgstr "Uma conta bancária é necessária para pagamentos PIX, e um cartão não deve ser selecionado."
+
+#: apps/finances/models.py:318
+msgid "A card is required for debit/credit payments, and a bank account should not be selected directly."
+msgstr "Um cartão é necessário para pagamentos de débito/crédito, e uma conta bancária não deve ser selecionada diretamente."
+
+#: apps/finances/models.py:322
+msgid "Expenses"
+msgstr "Despesas"
+
 #: apps/users/models.py:12
 msgid "Father"
 msgstr "Pai"
