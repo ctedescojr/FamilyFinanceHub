@@ -16,7 +16,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis for cahce and sessions
+  # Redis for cache and sessions
   redis:
     image: redis:7-alpine
     container_name: ffh_redis_dev
@@ -72,7 +72,6 @@ services:
     container_name: ffh_frontend_dev
     volumes:
       - ./frontend:/app
-      - /app/node_modules
     environment:
       - HOST_UID=${UID:-1000}
       - HOST_GID=${GID:-1000}

@@ -9,7 +9,7 @@ function App() {
           Your automated frontend environment is ready!
         </p>
         <p className="mt-8 text-sm text-gray-500">
-          Start editing <code className="bg-gray-700 p-1 rounded">src/App.jsx</code>
+          Start editing <code className="bg-gray-700 p-1 rounded">src/App.tsx</code>
         </p>
       </header>
     </div>

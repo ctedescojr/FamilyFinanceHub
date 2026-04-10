@@ -8,8 +8,6 @@ export default defineConfig({
   server: {
     host: '0.0.0.0', // Required for Docker container port mapping
     port: 5173,
-    watch: {
-      usePolling: true, // Helps with file change detection in some Docker setups
-    },
+    // Removed `watch: { usePolling: true }` because Linux natively supports file system events (inotify) without high CPU overhead.
   },
 });
