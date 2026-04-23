@@ -5,7 +5,7 @@
 
 # --- Development Stage ---
 # This stage is for running the Vite dev server with hot-reloading.
-FROM node:24-alpine AS development
+FROM node:25.9.0-alpine AS development
 
 # Set the working directory
 WORKDIR /app
@@ -41,7 +41,7 @@ CMD ["npm", "run", "dev"]
 
 # --- Build Stage ---
 # This stage builds the application for production.
-FROM node:24-alpine AS build
+FROM node:25.9.0-alpine AS build
 
 # Set the working directory
 WORKDIR /app
